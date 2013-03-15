@@ -1,0 +1,14 @@
+Client = walking skeleton for java (walks anywhere)
+Client-py = walking skeleton for python (walks right)
+clients = pre-compiled clients to test your AI
+Server = jar only
+
+
+Tip : use ./run.sh P1 P2 P3 P4 to start the server and 4 clients
+Truc : utilisez ./run.sh P1 P2 P3 P4 pour partir le serveur et 4 clients
+
+Tip 2 : use only 3 clients to debug yours in eclipse (start 3 on CLI, and the server will still be waiting for a 4th)
+Truc 2 : utilisez juste 3 clients pour debugger votre code dans eclipse (on en part 3 en CLI, le serveur va attendre le 4e)
+
+Example : 
+./run.sh clients/SimpleClient.jar clients/SimpleClient.jar clients/GoRightClient.py clients/SimpleClient.jar

@@ -1,0 +1,11 @@
+Players    :  "1" "2" "3" "4"
+Hard Wall  :  "H"
+Brick Wall :  "W"
+Bomb       :  "B"
+Explosion  :  "E"
+Alert sudden death: "A"
+
+- Power ups -
+ExtraBomb  :  "b"
+ExtraRange :  "r"
+Detonator  :  "d"
