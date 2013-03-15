@@ -1,1 +1,1 @@
-./run.sh clients/SimpleClient.jar clients/SimpleClient.jar clients/SimpleClient.jar Client/BombermanClient.jar
+./run.sh clients/SimpleClient.jar clients/SimpleClient.jar clients/SimpleClient.jar

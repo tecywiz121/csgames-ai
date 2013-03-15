@@ -8,6 +8,4 @@ public enum AvailableMoves {
 		DropBomb,
 		Detonate,
 		None
-
-
 }
