@@ -195,36 +195,6 @@ public class Util {
 		return Math.sqrt(dX*dX + dY*dY);
 	}
 
-	/**
-	public double scoreToBrick(Point2D location){
-		if( !passable(location) ) return 0.0;
-		List<Point2D> brickLocList = search(location.x, location.y, 100, BRICK_WALL);
-		
-		
-	}
-	
-
-	public double distanceToClosest(String type){
-		// stupidly expensive since it will be called for each cell, most likely
-		for(int i = 0; i < mMap.length; i++){
-			for(int j = 0; j < mMap[0].length; j++){
-				if( at(i,j).equals(type) ){
-					
-				}
-			}
-		}
-		
-		double distanceToClosestBomb = Double.MAX_VALUE;
-		for(Point2D aBomb : bombList){
-			
-			double distanceToBomb = distance(aBomb, checkedPoint);
-			if( distanceToBomb < distanceToClosestBomb ){
-				distanceToClosestBomb = distanceToBomb;
-			}
-		}
-	}
-	*/
-	
 	public double checkSafety(Point2D p) { return checkSafety(p.x, p.y); }
 
 	public double checkSafety(int x, int y){
