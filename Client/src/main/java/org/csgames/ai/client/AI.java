@@ -56,6 +56,19 @@ public class AI {
 			
 			// Search for powerups
 			
+			// Break BLOCKS!
+			if (mType == AvailableMoves.DropBomb) {
+				List<Point2D> blocks = mUtil.search(me.x, me.y, getBombRadius(), Util.BRICK_WALL);
+				int count = 0;
+				for (Point2D block : blocks) {
+					if (block.x == me.x || block.y == me.y) {
+						count ++;
+					}
+				}
+				
+				score -= count*0.001;
+			}
+			
 			return score;
 		}
 	}
@@ -73,11 +86,12 @@ public class AI {
 	public void playMove(NextMoveSender nextMoveSender) throws IOException {
 		// Set the turn time
 		if (mFirstTurn == 0) {
-			mFirstTurn = System.currentTimeMillis();mNextMove = new Action();
-			mNextMove.mType = AvailableMoves.DropBomb;
+			mFirstTurn = System.currentTimeMillis();
 		}
 		
 		Action bestAction = new Action();
+		AvailableMoves avoidAction = AvailableMoves.None;
+		
 		if (mNextMove != null) {
 			bestAction = mNextMove;
 			mNextMove = null;
@@ -92,46 +106,51 @@ public class AI {
 			
 			// Pick the best action
 			for (Action action : mPossibleActions) {
+				// If its a drop bomb action, ensure we can move away!
+				if (action.getAvailableMove() == AvailableMoves.DropBomb) {
+					AvailableMoves avoid = avoidOwnBomb();
+					if (avoid == AvailableMoves.None) {
+						continue;
+					}
+					avoidAction = avoid;
+				}
+				
 				if (action.getScore() < bestAction.getScore()) {
 					bestAction = action;
 				}
 			}
 		}
 		
+		if (avoidAction != AvailableMoves.None && bestAction.getAvailableMove() == AvailableMoves.DropBomb) {
+			mNextMove = new Action();
+			mNextMove.mType = avoidAction;
+		}
+		
 		// Execute Action
 		nextMoveSender.setMoveAndSend(bestAction.getAvailableMove());
-		System.out.println(bestAction.getAvailableMove());
 		
-		// Don't stand on our own bombs!
-		if (bestAction.getAvailableMove() == AvailableMoves.DropBomb) {
-			Util.Point2D me = mUtil.getMyLocation();
-			Util.Point2D above = new Util.Point2D(me.x, me.y-1);
-			Util.Point2D below = new Util.Point2D(me.x, me.y+1);
-			Util.Point2D left = new Util.Point2D(me.x-1, me.y);
-			Util.Point2D right = new Util.Point2D(me.x+1, me.y);
-			
-			System.out.println(mUtil.at(above));
-			System.out.println("'" + mUtil.at(below) + "'");
-			System.out.println("'" + mUtil.at(right) + "'");
-			System.out.println("'" + mUtil.at(left) + "'");
-			
-			mNextMove = new Action();
-			if (mUtil.at(above).equals(Util.EMPTY)) {
-				mNextMove.mType = AvailableMoves.Up;
-			}
-			else if (mUtil.at(below).equals(Util.EMPTY)) {
-				mNextMove.mType = AvailableMoves.Down;
-			}
-			else if (mUtil.at(right).equals(Util.EMPTY)) {
-				mNextMove.mType = AvailableMoves.Right;
-			}
-			else if (mUtil.at(left).equals(Util.EMPTY)) {
-				mNextMove.mType = AvailableMoves.Left;
-			}
-			else {
-				System.out.println("I didn't want to live anyways...");
-			}
+		System.out.println(bestAction.getAvailableMove());
+	}
+	
+	private AvailableMoves avoidOwnBomb() {
+		Util.Point2D me = mUtil.getMyLocation();
+		Util.Point2D above = new Util.Point2D(me.x, me.y-1);
+		Util.Point2D below = new Util.Point2D(me.x, me.y+1);
+		Util.Point2D left = new Util.Point2D(me.x-1, me.y);
+		Util.Point2D right = new Util.Point2D(me.x+1, me.y);
+		AvailableMoves direction = AvailableMoves.None;
+		
+		if (mUtil.at(above).equals(Util.EMPTY) && canFleeFrom(me, above)) {
+			direction = AvailableMoves.Up;
+		} else if (mUtil.at(below).equals(Util.EMPTY) && canFleeFrom(me, below)) {
+			direction = AvailableMoves.Down;
+		} else if (mUtil.at(left).equals(Util.EMPTY) && canFleeFrom(me, left)) {
+			direction = AvailableMoves.Left;
+		} else if (mUtil.at(right).equals(Util.EMPTY) && canFleeFrom(me, right)) {
+			direction = AvailableMoves.Right;
 		}
+		
+		return direction;
 	}
 	
 	private long getElapsedTime() {
@@ -139,7 +158,7 @@ public class AI {
 	}
 	
 	private int getBombRadius() {
-		return 2; // TODO: make this return how many powerups we have plus one
+		return 2; // TODO: make this return how many power ups we have plus one
 	}
 	
 	private void runFromBombs() {
@@ -203,8 +222,29 @@ public class AI {
 		}
 	}
 	
-	private void breakBlocks() {
+	private boolean canFleeFrom(Point2D original, Point2D me) {
+		Util.Point2D above = new Util.Point2D(me.x, me.y-1);
+		Util.Point2D below = new Util.Point2D(me.x, me.y+1);
+		Util.Point2D left = new Util.Point2D(me.x-1, me.y);
+		Util.Point2D right = new Util.Point2D(me.x+1, me.y);
 		
+		return (!above.equals(original) && mUtil.at(above).equals(Util.EMPTY))  ||
+				(!below.equals(original) && mUtil.at(below).equals(Util.EMPTY)) ||
+				(!right.equals(original) && mUtil.at(right).equals(Util.EMPTY)) ||
+				(!left.equals(original) && mUtil.at(left).equals(Util.EMPTY));
+		}
+	
+	private void breakBlocks() {
+		Util.Point2D me = mUtil.getMyLocation();
+		
+		List<Point2D> bricks = mUtil.search(me.x, me.y, getBombRadius(), Util.BRICK_WALL);
+		
+		for (Point2D brick : bricks) {
+			if (brick.x == me.x || brick.y == me.y) {
+				addAction(AvailableMoves.DropBomb);
+				break;
+			}
+		}
 	}
 	
 	private void addAction(AvailableMoves action) {
