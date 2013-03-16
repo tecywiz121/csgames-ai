@@ -146,7 +146,7 @@ public class Util {
 		for(int col = lowBoundX; col < hiBoundX; col++){
 			for(int row = lowBoundY; row < hiBoundY; row++){
 
-				if( mMap[col][row].equals(type) ){
+				if( mMap[col][row].contains(type) ){
 					list.add(new Point2D(col, row));
 				}
 			}
