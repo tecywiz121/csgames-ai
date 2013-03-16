@@ -14,35 +14,28 @@ public class Util {
 		}
 	}
 	
-	public static enum Artifact{
-		Player1("1"),
-		Player2("2"),
-		Player3("3"),
-		Player4("4"),
-		Myself("Y"),
-		BrickWall("W"),
-		HardWall("H"),
-		Empty(" "),
-		Bomb("B"),
-		Explosion("E"),
-		SuddenDeathAlert("A"),
-		PowUpBomb("b"),
-		PowUpRange("r"),
-		PowUpDet("d");
+	public final static String PLAYER_1 = "1";
+	public final static String PLAYER_2 = "2";
+	public final static String PLAYER_3 = "3";
+	public final static String PLAYER_4 = "4";
+	public final static String MYSELF = "Y";
+	public final static String BRICK_WALL = "W";
+	public final static String HARD_WALL = "H";
+	public final static String EMPTY = " ";
+	public final static String BOMB = "B";
+	public final static String EXPLOSION = "E";
+	public final static String SUDDEN_DEATH_ALERT = "A";
+	public final static String POW_UP_BOMB = "b";
+	public final static String POW_UP_RANGE = "r";
+	public final static String POW_UP_DET = "d";
 		
-		private String val;
-		Artifact(String s){
-			val = s;
-		}
-	}
-	
 	private String[][] map;
 	
 	public void updateMap(String[][] map){
 		this.map = map;
 	}
 	
-	public List<Point2D> search(int x, int y, int max, Artifact type){
+	public List<Point2D> search(int x, int y, int max, String type){
 		ArrayList<Point2D> list = new ArrayList<Point2D>();
 		
 		int lowBoundX = Math.max(0, x - max);
@@ -53,7 +46,7 @@ public class Util {
 		for(int col = lowBoundX; col < hiBoundX; col++){
 			for(int row = lowBoundY; row < hiBoundY; row++){
 				
-				if( Artifact.valueOf(map[col][row]).equals(type) ){
+				if( map[col][row].equals(type) ){
 					list.add(new Point2D(col, row));
 				}
 			}
@@ -81,7 +74,7 @@ public class Util {
 		return new Point2D(-1, -1);
 	}
 	
-	public Artifact at(int x, int y){
-		return Artifact.valueOf(map[x][y]);
+	public String at(int x, int y){
+		return map[x][y];
 	}
 }
