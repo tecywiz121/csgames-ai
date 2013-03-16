@@ -3,29 +3,10 @@ package org.csgames.ai.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import sun.awt.SunHints.Value;
+
 public class Util {
-	
-	public static class Point2D{
-		public final int x;
-		public final int y;
-		
-		public Point2D(int x, int y){ 
-			this.x = x; 
-			this.y = y; 
-		}
-		
-		public boolean equals(Object other){
-			if(!(other instanceof Point2D)) return false;
-			if(other == null) return false;
-			Point2D p = (Point2D) other;
-			return p.x == x && p.y == y;
-		}
-		
-		public String toString(){
-			return String.format("[%d, %d]", x, y);
-		}
-	}
-	
+
 	public final static String PLAYER_1 = "1";
 	public final static String PLAYER_2 = "2";
 	public final static String PLAYER_3 = "3";
@@ -41,7 +22,12 @@ public class Util {
 	public final static String POW_UP_RANGE = "r";
 	public final static String POW_UP_DET = "d";
 		
+	public static class Values{
+		public static final int DEFAULT_BOMB_RANGE = 2;
+	}
+	
 	private String[][] map;
+	private int mBombRange = Values.DEFAULT_BOMB_RANGE;
 	
 	public void updateMap(String[][] map){
 		this.map = map;
@@ -80,7 +66,23 @@ public class Util {
 	public double checkSafety(Point2D p) { return checkSafety(p.x, p.y); }
 	
 	public double checkSafety(int x, int y){
-		return 0.0;
+		if( at(x,y) == BOMB || at(x,y) == EXPLOSION ) return 0.0;
+		
+		Point2D checkedPoint = new Point2D(x,y);
+		
+		List<Point2D> bombList = search(x,y, mBombRange, BOMB);
+		double distanceToClosestBomb = Double.MAX_VALUE;
+		
+		for(Point2D aBomb : bombList){
+			double distanceToBomb = distance(aBomb, checkedPoint);
+			if( distanceToBomb < distanceToClosestBomb ){
+				distanceToClosestBomb = distanceToBomb;
+			}
+		}
+		
+		double rangedDistance = Math.max(distanceToClosestBomb, (double) Values.DEFAULT_BOMB_RANGE);
+		
+		return rangedDistance / (double) Values.DEFAULT_BOMB_RANGE;
 	}
 	
 	public Point2D getMyLocation(){
@@ -95,5 +97,26 @@ public class Util {
 	
 	public String at(int x, int y){
 		return map[x][y];
+	}
+	
+	public static class Point2D{
+		public final int x;
+		public final int y;
+		
+		public Point2D(int x, int y){ 
+			this.x = x; 
+			this.y = y; 
+		}
+		
+		public boolean equals(Object other){
+			if(!(other instanceof Point2D)) return false;
+			if(other == null) return false;
+			Point2D p = (Point2D) other;
+			return p.x == x && p.y == y;
+		}
+		
+		public String toString(){
+			return String.format("[%d, %d]", x, y);
+		}
 	}
 }
