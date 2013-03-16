@@ -49,10 +49,10 @@ public class AI {
 			for (Point2D bomb : bombs) {
 				score += mUtil.distance(me.x, me.y, bomb.x, bomb.y);
 			}
-			
 			if (score > 0) {
 				score = 1.0/score;
 			}
+			System.out.println(mType + Double.toString(score));
 			
 			// Search for powerups
 			
@@ -73,8 +73,7 @@ public class AI {
 	public void playMove(NextMoveSender nextMoveSender) throws IOException {
 		// Set the turn time
 		if (mFirstTurn == 0) {
-			mFirstTurn = System.currentTimeMillis();
-			mNextMove = new Action();
+			mFirstTurn = System.currentTimeMillis();mNextMove = new Action();
 			mNextMove.mType = AvailableMoves.DropBomb;
 		}
 		
@@ -93,7 +92,7 @@ public class AI {
 			
 			// Pick the best action
 			for (Action action : mPossibleActions) {
-				if (action.getScore() > bestAction.getScore()) {
+				if (action.getScore() < bestAction.getScore()) {
 					bestAction = action;
 				}
 			}
@@ -101,6 +100,7 @@ public class AI {
 		
 		// Execute Action
 		nextMoveSender.setMoveAndSend(bestAction.getAvailableMove());
+		System.out.println(bestAction.getAvailableMove());
 		
 		// Don't stand on our own bombs!
 		if (bestAction.getAvailableMove() == AvailableMoves.DropBomb) {
@@ -159,10 +159,12 @@ public class AI {
 				System.out.println("Bomb horizontal!");
 				flee = true;
 				if (mUtil.at(above).equals(Util.EMPTY)) {
+					System.out.println("Going Up");
 					addAction(AvailableMoves.Up); // TODO: check this to see if we move in correct direction
 					moved = true;
 				}
 				if (mUtil.at(below).equals(Util.EMPTY)) {
+					System.out.println("Going Down");
 					addAction(AvailableMoves.Down);
 					moved = true;
 				}
@@ -171,10 +173,12 @@ public class AI {
 				System.out.println("Bomb vertical!");
 				flee = true;
 				if (mUtil.at(left).equals(Util.EMPTY)) {
+					System.out.println("Going left");
 					addAction(AvailableMoves.Left); // TODO: check this to see if we move in correct direction
 					moved = true;
 				}
 				if (mUtil.at(right).equals(Util.EMPTY)) {
+					System.out.println("Going right");
 					addAction(AvailableMoves.Right);
 					moved = true;
 				}
