@@ -61,7 +61,7 @@ public class AI {
 				brick_score = 1.0/min_distance;
 			}
 			
-			if ((getElapsedTime()- mLastBomb)/1000.0 < 1.1) {
+			if ((getElapsedTime()- mLastBomb)/1000.0 < 2.1) {
 				return (bomb_score*0.99) + 0.00001;
 			}
 			
