@@ -226,7 +226,7 @@ public class AI {
 	}
 	
 	private int getBombRadius() {
-		return 2; // TODO: make this return how many power ups we have plus one
+		return mUtil.getSelfState().getTotalRange();
 	}
 	
 	private void runFromBombs() {
