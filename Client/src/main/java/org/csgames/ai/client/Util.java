@@ -8,9 +8,21 @@ public class Util {
 	public static class Point2D{
 		public final int x;
 		public final int y;
-		public Point2D(int x, int y){ this.x = x; this.y = y; }
-		public boolean equals(Point2D other){
-			return other.x == x && other.y == y;
+		
+		public Point2D(int x, int y){ 
+			this.x = x; 
+			this.y = y; 
+		}
+		
+		public boolean equals(Object other){
+			if(!(other instanceof Point2D)) return false;
+			if(other == null) return false;
+			Point2D p = (Point2D) other;
+			return p.x == x && p.y == y;
+		}
+		
+		public String toString(){
+			return String.format("[%d, %d]", x, y);
 		}
 	}
 	
