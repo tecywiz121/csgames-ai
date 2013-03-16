@@ -164,6 +164,15 @@ public class Util {
 		return mPlayers.get(playerNumber);
 	}
 	
+	public PlayerBomb getBombAtLocation(Point2D location){
+		for(Player p : mPlayers.values()){
+			for(PlayerBomb bomb : p.getBombList()){
+				if(bomb.location.equals(location)) return bomb;
+			}
+		}
+		return null;
+	}
+	
 	public double distance(Point2D first, Point2D second){
 		return distance(first.x, first.y, second.x, second.y);
 	}
