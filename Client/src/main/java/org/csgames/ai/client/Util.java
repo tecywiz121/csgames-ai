@@ -39,9 +39,11 @@ public class Util {
 		if(!isInitialized){
 			init(map);
 			isInitialized = true;
-		}
+		} 
 		
-		mOldMap = mMap;
+		if( mMap == null ) mOldMap = map;
+		else mOldMap = mMap;
+		
 		mMap = map;
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++){
@@ -61,6 +63,7 @@ public class Util {
 	private void init(String[][] map){
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++){
+				if(map[i][j].equals("")) continue;
 				String cell = String.valueOf(map[i][j].charAt(0));
 				switch(cell){
 				case PLAYER_1:
@@ -77,11 +80,20 @@ public class Util {
 		}
 	}
 	
-	private void updatePlayer(String player, int x, int y, long time){
+	private void updatePlayer(String cell, int x, int y, long time){
 		// get player
+		String player;
+		if(cell.contains(PLAYER_1)) player = PLAYER_1;
+		else if(cell.contains(PLAYER_2)) player = PLAYER_2;
+		else if(cell.contains(PLAYER_3)) player = PLAYER_3;
+		else if(cell.contains(PLAYER_4)) player = PLAYER_4;
+		else if(cell.contains(MYSELF)) player = MYSELF;
+		else return;
+		
 		Player p = mPlayers.get(player);
 		
 		p.setLocation(x,y);
+		
 		
 		if( mOldMap[x][y].equals(POW_UP_BOMB) ){
 			// update bomb power up
@@ -107,7 +119,7 @@ public class Util {
 		}
 		
 		// save changes
-		mPlayers.put(player, p);
+		mPlayers.put(cell, p);
 	}
 	
 
@@ -178,11 +190,7 @@ public class Util {
 	}
 	
 	public Point2D getMyLocation(){
-		for(int i = 0; i < mMap.length; i++)
-			for(int j = 0; j < mMap[0].length; j++)
-				if(mMap[i][j].equals("Y")) return new Point2D(i, j);
-		
-		return new Point2D(-1, -1);
+		return mPlayers.get(MYSELF).getLocation();
 	}
 	
 	public String at(Point2D p) { return at(p.x, p.y); }

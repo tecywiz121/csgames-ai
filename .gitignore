@@ -2,4 +2,6 @@ bin
 target
 .buildpath
 .settings
-.classpath
+.classpathpids
+score.txt
+scores.txt
