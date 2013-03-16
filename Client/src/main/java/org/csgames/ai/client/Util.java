@@ -73,6 +73,7 @@ public class Util {
 		return Math.sqrt(dX*dX + dY*dY);
 	}
 	
+	public double checkSaftey(Point2D p) { return checkSafety(p.x, p.y); }
 	
 	public double checkSafety(int x, int y){
 		return 0.0;
@@ -85,6 +86,8 @@ public class Util {
 		
 		return new Point2D(-1, -1);
 	}
+	
+	public String at(Point2D p) { return at(p.x, p.y); }
 	
 	public String at(int x, int y){
 		return map[x][y];
