@@ -13,7 +13,9 @@ public class MoveGenerator {
 	private AvailableMoves[] myMoves = { AvailableMoves.Up,
 			AvailableMoves.Down, AvailableMoves.Right, AvailableMoves.Left};
 	
-	private AI mAi = new AI();
+	
+	private Util mUtil = new Util();
+	private AI mAi = new AI(mUtil);
 
 	public MoveGenerator(NetworkLayer network) {
 		this.network = network;
