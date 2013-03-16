@@ -10,6 +10,7 @@ import org.csgames.ai.client.AvailableMoves;
 import org.csgames.ai.client.Util.Point2D;
 
 public class AI {	
+	private static final int BRICK_DISTANCE = 10;
 	private class Action {
 		private AvailableMoves mType = AvailableMoves.None;
 		
@@ -45,18 +46,30 @@ public class AI {
 			
 			// Bomb based score
 			List<Point2D> bombs = mUtil.search(me.x, me.y, getBombRadius(), Util.BOMB);
-			
+			double bomb_score = 0;
 			for (Point2D bomb : bombs) {
-				score += mUtil.distance(me.x, me.y, bomb.x, bomb.y);
+				bomb_score += mUtil.distance(me.x, me.y, bomb.x, bomb.y);
 			}
-			if (score > 0) {
-				score = 1.0/score;
+			
+			// Brick based score
+			List<Point2D> bricks = mUtil.search(me.x, me.y, BRICK_DISTANCE, Util.BRICK_WALL);
+			
+			double distance = Double.MAX_VALUE;
+			double brick_score = 0;
+			for (Point2D brick : bricks) {
+				double d = mUtil.distance(brick, me);
+				if (d < distance) {
+					distance = d;
+				}
 			}
-			System.out.println(mType + Double.toString(score));
+			if (distance < Double.MAX_VALUE) {
+				brick_score += distance;
+			}
 			
 			// Search for powerups
 			
 			// Break BLOCKS!
+			double break_score = 0.0;
 			if (mType == AvailableMoves.DropBomb) {
 				List<Point2D> blocks = mUtil.search(me.x, me.y, getBombRadius(), Util.BRICK_WALL);
 				int count = 0;
@@ -66,9 +79,16 @@ public class AI {
 					}
 				}
 				
-				score -= count*0.001;
+				break_score -= count;
 			}
 			
+			bomb_score *= 2;
+			brick_score *= 0.000000001;
+			break_score *= 0.0000001;
+			
+			System.out.println("Bomb:" + Double.toString(bomb_score) + " Brick:" + Double.toString(brick_score) + " Break:" + Double.toString(break_score));
+			score = bomb_score + brick_score + break_score;
+			System.out.println(mType.toString() + " " + Double.toString(score) + " " + Double.toString(distance));
 			return score;
 		}
 	}
@@ -129,7 +149,8 @@ public class AI {
 		// Execute Action
 		nextMoveSender.setMoveAndSend(bestAction.getAvailableMove());
 		
-		System.out.println(bestAction.getAvailableMove());
+		System.out.println("Doing:" + bestAction.mType.toString() + Double.toString(bestAction.getScore()));
+		System.out.println();
 	}
 	
 	private AvailableMoves avoidOwnBomb() {
@@ -169,13 +190,12 @@ public class AI {
 		Util.Point2D right = new Util.Point2D(me.x+1, me.y);
 		
 		List<Util.Point2D> bombs = mUtil.search(me.x, me.y, getBombRadius(), Util.BOMB);
-		System.out.println(bombs.size());
 		
 		for (Util.Point2D bomb : bombs) {
 			boolean moved = false;
 			boolean flee = false;
 			if (bomb.x == me.x) {
-				System.out.println("Bomb horizontal!");
+				System.out.println("Bomb vertical!");
 				flee = true;
 				if (mUtil.at(above).equals(Util.EMPTY)) {
 					System.out.println("Going Up");
@@ -189,7 +209,7 @@ public class AI {
 				}
 			}
 			if (bomb.y == me.y) {
-				System.out.println("Bomb vertical!");
+				System.out.println("Bomb horizontal!");
 				flee = true;
 				if (mUtil.at(left).equals(Util.EMPTY)) {
 					System.out.println("Going left");
@@ -254,7 +274,57 @@ public class AI {
 	}
 	
 	private void lookForPowerups() {
+		Util.Point2D me = mUtil.getMyLocation();
+		Util.Point2D above = new Util.Point2D(me.x, me.y-1);
+		Util.Point2D below = new Util.Point2D(me.x, me.y+1);
+		Util.Point2D left = new Util.Point2D(me.x-1, me.y);
+		Util.Point2D right = new Util.Point2D(me.x+1, me.y);
 		
+		List<Point2D> bricks = mUtil.search(me.x, me.y, BRICK_DISTANCE, Util.BRICK_WALL);
+		
+		Point2D closest = null;
+		double distance = Double.MAX_VALUE;
+		
+		for (Point2D brick : bricks) {
+			double d = mUtil.distance(brick, me);
+			if (d < distance) {
+				closest = brick;
+				distance = d;
+				
+				int d_x = me.x - brick.x;
+				int d_y = me.y - brick.y;
+				
+				Point2D target = null;
+				AvailableMoves dir = AvailableMoves.None;
+				if (d_x < 0) {
+					// Move Right
+					target = right;
+					dir = AvailableMoves.Right;
+				} else if (d_x > 0) {
+					// Move Left
+					target = left;
+					dir = AvailableMoves.Left;
+				}
+				
+				if (target != null && mUtil.at(target).equals(Util.EMPTY)) {
+					addAction(dir);
+				}
+				
+				if (d_y < 0) {
+					// Move Down
+					target = below;
+					dir = AvailableMoves.Down;
+				} else if (d_y > 0) {
+					// Move Up
+					target = above;
+					dir = AvailableMoves.Up;
+				}
+				
+				if (target != null && mUtil.at(target).equals(Util.EMPTY)) {
+					addAction(dir);
+				}
+			}
+		}
 	}
 	
 	private void attack() {
