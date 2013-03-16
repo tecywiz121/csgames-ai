@@ -14,7 +14,7 @@ public class Util {
 	public final static String MYSELF = "Y";
 	public final static String BRICK_WALL = "W";
 	public final static String HARD_WALL = "H";
-	public final static String EMPTY = " ";
+	public final static String EMPTY = "";
 	public final static String BOMB = "B";
 	public final static String EXPLOSION = "E";
 	public final static String SUDDEN_DEATH_ALERT = "A";
