@@ -2,25 +2,32 @@ package org.csgames.ai.client;
 
 public class Util {
 	
+	public enum Artifact{
+		Player1,
+		Player2,
+		Player3,
+		Player4,
+		Myself,
+		BrickWall,
+		HardWall,
+		Bomb,
+		Explosion,
+		PowUpBomb,
+		PowUpRange,
+		PowUpDet
+	}
+	
 	private String[][] map;
 	
 	public void updateMap(String[][] map){
 		this.map = map;
 	}
 	
-	public int[][] search(int x, int y, int max){
+	public int[][] search(int x, int y, int max, Artifact type){
 		
 		return new int[0][0];
 	}
 	
-	/**
-	 * 
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
-	 * @return
-	 */
 	public double distance(int x1, int y1, int x2, int y2){
 		int dX = x2 - x1;
 		int dY = y2 - y1;
