@@ -1,9 +1,8 @@
 package org.csgames.ai.client;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
-import sun.awt.SunHints.Value;
 
 public class Util {
 
@@ -26,25 +25,52 @@ public class Util {
 		public static final int DEFAULT_BOMB_RANGE = 2;
 	}
 	
-	private String[][] map;
+	private String[][] mMap;
 	private int mBombRange = Values.DEFAULT_BOMB_RANGE;
 	
+	private List<Point2D> mPowerBomb = new ArrayList<Point2D>();
+	private List<Point2D> mPowerRange = new ArrayList<Point2D>();
+	private List<Point2D> mPowerDet = new ArrayList<Point2D>();
+	
 	public void updateMap(String[][] map){
-		this.map = map;
+		
+		updatePowerBomb(map);
+		updatePowerRange(map);
+		updatePowerDet(map);
+		this.mMap = map;
 	}
 	
+	private void updatePowerDet(String[][] map) {
+		
+		for(int i = 0; i < map.length; i++){
+			for(int j = 0; j < map[0].length; j++){
+				
+			}
+		}
+	}
+
+	private void updatePowerRange(String[][] map) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void updatePowerBomb(String[][] map) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public List<Point2D> search(int x, int y, int max, String type){
 		ArrayList<Point2D> list = new ArrayList<Point2D>();
 		
 		int lowBoundX = Math.max(0, x - max);
 		int lowBoundY = Math.max(0, y - max);
-		int hiBoundX = Math.min(map.length, x + max);
-		int hiBoundY = Math.min(map[0].length, y + max);
+		int hiBoundX = Math.min(mMap.length, x + max);
+		int hiBoundY = Math.min(mMap[0].length, y + max);
 		
 		for(int col = lowBoundX; col < hiBoundX; col++){
 			for(int row = lowBoundY; row < hiBoundY; row++){
 				
-				if( map[col][row].equals(type) ){
+				if( mMap[col][row].equals(type) ){
 					list.add(new Point2D(col, row));
 				}
 			}
@@ -86,9 +112,9 @@ public class Util {
 	}
 	
 	public Point2D getMyLocation(){
-		for(int i = 0; i < map.length; i++)
-			for(int j = 0; j < map[0].length; j++)
-				if(map[i][j].equals("Y")) return new Point2D(i, j);
+		for(int i = 0; i < mMap.length; i++)
+			for(int j = 0; j < mMap[0].length; j++)
+				if(mMap[i][j].equals("Y")) return new Point2D(i, j);
 		
 		return new Point2D(-1, -1);
 	}
@@ -96,7 +122,7 @@ public class Util {
 	public String at(Point2D p) { return at(p.x, p.y); }
 	
 	public String at(int x, int y){
-		return map[x][y];
+		return mMap[x][y];
 	}
 	
 	public static class Point2D{
@@ -109,8 +135,8 @@ public class Util {
 		}
 		
 		public boolean equals(Object other){
-			if(!(other instanceof Point2D)) return false;
 			if(other == null) return false;
+			if(!(other instanceof Point2D)) return false;
 			Point2D p = (Point2D) other;
 			return p.x == x && p.y == y;
 		}
