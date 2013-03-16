@@ -1,1 +1,1 @@
-1st = P4 2nd = P1 3th = P2 4th = P3 
+1st = P4 2nd = P2 3th = P1 4th = P3 

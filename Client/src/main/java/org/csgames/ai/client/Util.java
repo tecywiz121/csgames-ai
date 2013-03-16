@@ -3,6 +3,10 @@ package org.csgames.ai.client;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.csgames.ai.client.Player.PlayerBomb;
 
 public class Util {
 
@@ -20,44 +24,92 @@ public class Util {
 	public final static String POW_UP_BOMB = "b";
 	public final static String POW_UP_RANGE = "r";
 	public final static String POW_UP_DET = "d";
-		
-	public static class Values{
-		public static final int DEFAULT_BOMB_RANGE = 2;
-	}
+	public final static String POW_UP_KICK = "k";
 	
+	private String[][] mOldMap;
 	private String[][] mMap;
-	private int mBombRange = Values.DEFAULT_BOMB_RANGE;
 	
-	private List<Point2D> mPowerBomb = new ArrayList<Point2D>();
-	private List<Point2D> mPowerRange = new ArrayList<Point2D>();
-	private List<Point2D> mPowerDet = new ArrayList<Point2D>();
+	private boolean isInitialized = false;
 	
-	public void updateMap(String[][] map){
+	// need TreeMap for fast iteration
+	private Map<String, Player> mPlayers = new TreeMap<String,Player>();
+	
+	public void updateMap(String[][] map, long time){
 		
-		updatePowerBomb(map);
-		updatePowerRange(map);
-		updatePowerDet(map);
-		this.mMap = map;
-	}
-	
-	private void updatePowerDet(String[][] map) {
+		if(!isInitialized){
+			init(map);
+			isInitialized = true;
+		}
 		
+		mOldMap = mMap;
+		mMap = map;
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++){
 				
+				String cell = map[i][j]; 
+				if(cell.contains(PLAYER_1) || 
+						cell.contains(PLAYER_2) || 
+						cell.contains(PLAYER_3) || 
+						cell.contains(PLAYER_4) ||
+						cell.contains(MYSELF) ){
+					updatePlayer(cell, i,j, time);
+				}
 			}
 		}
 	}
-
-	private void updatePowerRange(String[][] map) {
-		// TODO Auto-generated method stub
-		
+	
+	private void init(String[][] map){
+		for(int i = 0; i < map.length; i++){
+			for(int j = 0; j < map[0].length; j++){
+				String cell = String.valueOf(map[i][j].charAt(0));
+				switch(cell){
+				case PLAYER_1:
+				case PLAYER_2:
+				case PLAYER_3:
+				case PLAYER_4:
+				case MYSELF:
+					mPlayers.put(cell, new Player(cell));
+					break;
+				default:
+					// Not a player
+				}
+			}
+		}
 	}
-
-	private void updatePowerBomb(String[][] map) {
-		// TODO Auto-generated method stub
+	
+	private void updatePlayer(String player, int x, int y, long time){
+		// get player
+		Player p = mPlayers.get(player);
 		
+		p.setLocation(x,y);
+		
+		if( mOldMap[x][y].equals(POW_UP_BOMB) ){
+			// update bomb power up
+			p.addBombPU();
+		}
+		
+		if( mOldMap[x][y].equals(POW_UP_DET) ){
+			p.setDetonationPU();
+		}
+		
+		if( mOldMap[x][y].equals(POW_UP_KICK) ){
+			p.setKickPU();
+		}
+		
+		if( mOldMap[x][y].equals(POW_UP_RANGE) ){
+			p.addRangePU();
+		}
+		
+		// contains because when player sits on it, the string is "YB" or "1B"
+		if( mMap[x][y].contains(BOMB) ){
+			PlayerBomb b = p.new PlayerBomb(p.getLocation(), time);
+			p.addBomb(b);
+		}
+		
+		// save changes
+		mPlayers.put(player, p);
 	}
+	
 
 	public List<Point2D> search(int x, int y, int max, String type){
 		ArrayList<Point2D> list = new ArrayList<Point2D>();
@@ -79,6 +131,14 @@ public class Util {
 		return list;
 	}
 	
+	public Player getSelfState(){
+		return mPlayers.get(MYSELF);
+	}
+	
+	public Player getPlayer(String playerNumber){
+		return mPlayers.get(playerNumber);
+	}
+	
 	public double distance(Point2D first, Point2D second){
 		return distance(first.x, first.y, second.x, second.y);
 	}
@@ -92,11 +152,15 @@ public class Util {
 	public double checkSafety(Point2D p) { return checkSafety(p.x, p.y); }
 	
 	public double checkSafety(int x, int y){
-		if( at(x,y) == BOMB || at(x,y) == EXPLOSION ) return 0.0;
+		if( at(x,y).equals(BOMB) 
+				|| at(x,y).equals(EXPLOSION) 
+				|| at(x,y).equals(SUDDEN_DEATH_ALERT) ){
+			return 0.0;
+		}
 		
 		Point2D checkedPoint = new Point2D(x,y);
 		
-		List<Point2D> bombList = search(x,y, mBombRange, BOMB);
+		List<Point2D> bombList = search(x,y, Player.Values.DEFAULT_BOMB_RANGE, BOMB);
 		double distanceToClosestBomb = Double.MAX_VALUE;
 		
 		for(Point2D aBomb : bombList){
@@ -106,9 +170,11 @@ public class Util {
 			}
 		}
 		
-		double rangedDistance = Math.max(distanceToClosestBomb, (double) Values.DEFAULT_BOMB_RANGE);
+		double rangedDistance = 
+				Math.max(distanceToClosestBomb, 
+						(double) Player.Values.DEFAULT_BOMB_RANGE);
 		
-		return rangedDistance / (double) Values.DEFAULT_BOMB_RANGE;
+		return rangedDistance / (double) Player.Values.DEFAULT_BOMB_RANGE;
 	}
 	
 	public Point2D getMyLocation(){
