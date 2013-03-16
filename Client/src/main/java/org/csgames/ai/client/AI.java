@@ -82,7 +82,7 @@ public class AI {
 				break_score -= count;
 			}
 			
-			bomb_score *= 2;
+			bomb_score *= 4;
 			brick_score *= 0.000000001;
 			break_score *= 0.0000001;
 			
