@@ -195,35 +195,40 @@ public class Util {
 		return Math.sqrt(dX*dX + dY*dY);
 	}
 
-	/**
 	public double scoreToBrick(Point2D location){
 		if( !passable(location) ) return 0.0;
-		List<Point2D> brickLocList = search(location.x, location.y, 100, BRICK_WALL);
 		
+		double distanceNextBrick = distanceToClosest(location, BRICK_WALL);
 		
+		return 1.0 - (distanceNextBrick / Double.MAX_VALUE);
+	}
+
+	public double distanceToClosest(Point2D loc, String type){
+		return distanceToClosest(loc.x, loc.y, type);
 	}
 	
-
-	public double distanceToClosest(String type){
+	public double distanceToClosest(int x, int y, String type){
 		// stupidly expensive since it will be called for each cell, most likely
+		List<Point2D> typeList = new ArrayList<Point2D>();
 		for(int i = 0; i < mMap.length; i++){
 			for(int j = 0; j < mMap[0].length; j++){
 				if( at(i,j).equals(type) ){
-					
+					typeList.add(new Point2D(i,j));
 				}
 			}
 		}
 		
-		double distanceToClosestBomb = Double.MAX_VALUE;
-		for(Point2D aBomb : bombList){
+		Point2D checkedPoint = new Point2D(x,y);
+		double distanceToClosest = Double.MAX_VALUE;
+		for(Point2D aType : typeList){
 			
-			double distanceToBomb = distance(aBomb, checkedPoint);
-			if( distanceToBomb < distanceToClosestBomb ){
-				distanceToClosestBomb = distanceToBomb;
+			double distanceToType = distance(aType, checkedPoint);
+			if( distanceToType < distanceToClosest ){
+				distanceToClosest = distanceToType;
 			}
 		}
+		return distanceToClosest;
 	}
-	*/
 	
 	public double checkSafety(Point2D p) { return checkSafety(p.x, p.y); }
 
