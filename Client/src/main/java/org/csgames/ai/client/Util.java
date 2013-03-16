@@ -32,10 +32,10 @@ public class Util {
 	private boolean isInitialized = false;
 	
 	// need TreeMap for fast iteration
-	private Map<String, Player> mPlayers = new TreeMap<String,Player>();
+	private TreeMap<String, Player> mPlayers = new TreeMap<String,Player>();
 	
 	public void updateMap(String[][] map, long time){
-		
+		long start = System.currentTimeMillis();
 		if(!isInitialized){
 			init(map);
 			isInitialized = true;
@@ -43,8 +43,21 @@ public class Util {
 		
 		if( mMap == null ) mOldMap = map;
 		else mOldMap = mMap;
-		
 		mMap = map;
+		
+		updateStateFromMap(map, time);
+		
+		for(Player p : mPlayers.values()){
+			p.update(time);
+			System.out.println(p);
+		}
+		
+		long end = System.currentTimeMillis() - start;
+		System.out.printf("Util.update() in %d ms\n", end);
+		
+	}
+
+	private void updateStateFromMap(String[][] map, long time) {
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++){
 				
@@ -119,7 +132,7 @@ public class Util {
 		}
 		
 		// save changes
-		mPlayers.put(cell, p);
+		mPlayers.put(player, p);
 	}
 	
 
@@ -196,6 +209,10 @@ public class Util {
 	public String at(Point2D p) { return at(p.x, p.y); }
 	
 	public String at(int x, int y){
+		if( x < 0
+				|| x >= mMap.length
+				|| y < 0
+				|| y > mMap[0].length) return HARD_WALL;
 		return mMap[x][y];
 	}
 	
