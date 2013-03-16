@@ -203,6 +203,18 @@ public class Util {
 				|| at(x,y).equals(SUDDEN_DEATH_ALERT) ){
 			return 0.0;
 		}
+		
+		List<PlayerBomb> bombs = new ArrayList<PlayerBomb>();
+		for(Player p : mPlayers.values()){
+			bombs.addAll(p.getBombList());
+		}
+		
+		for(PlayerBomb b : bombs){
+			for(Point2D danger : b.getDangerZone()){
+				Point2D here = new Point2D(x,y);
+				if(danger.equals(here)) return 0.0;
+			}
+		}
 
 		Point2D checkedPoint = new Point2D(x,y);
 

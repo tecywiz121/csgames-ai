@@ -14,7 +14,7 @@ public class Player {
 	private boolean mHasPowUpKick = false;
 	private String mPlayerNumber = "";
 	private Point2D mLocation;
-
+	
 	private List<PlayerBomb> mBombList = new ArrayList<PlayerBomb>();
 
 	public Player(String number){
@@ -108,6 +108,18 @@ public class Player {
 		public String toString(){
 			long now = System.currentTimeMillis();
 			return String.format("bomb@%s from p%s ttl:%d", location, getOwner(), timeBeforeExplode(now));
+		}
+		
+		public List<Point2D> getDangerZone(){
+			List<Point2D> list = new ArrayList<Point2D>();
+			int x = Math.max(0, location.x + getRange() - 1);
+			int y = Math.max(0, location.y + getRange() - 1);
+			for(; x < 100; x++){
+				for(; y < 100; y++){
+					list.add(new Point2D(x,y));
+				}
+			}
+			return list;
 		}
 	}
 }
