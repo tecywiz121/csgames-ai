@@ -62,7 +62,7 @@ public class AI {
 			}
 			
 			System.out.println("Bomb:" + Double.toString(bomb_score) + " Brick:" + Double.toString(brick_score));
-			return (bomb_score*0.9) + (brick_score*0.1);
+			return (bomb_score*0.99) + (brick_score*0.01);
 		}
 		
 		public double getScore1() {
@@ -302,6 +302,9 @@ public class AI {
 		}
 	
 	private void breakBlocks() {
+		if (mUtil.getSelfState().getBombLeft() <= 0) {
+			return;
+		}
 		Util.Point2D me = mUtil.getMyLocation();
 		
 		List<Point2D> bricks = mUtil.search(me.x, me.y, getBombRadius(), Util.BRICK_WALL);
