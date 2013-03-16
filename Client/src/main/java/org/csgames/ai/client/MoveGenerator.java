@@ -12,6 +12,8 @@ public class MoveGenerator {
 	private NetworkLayer network;
 	private AvailableMoves[] myMoves = { AvailableMoves.Up,
 			AvailableMoves.Down, AvailableMoves.Right, AvailableMoves.Left};
+	
+	private AI mAi = new AI();
 
 	public MoveGenerator(NetworkLayer network) {
 		this.network = network;
@@ -34,6 +36,8 @@ public class MoveGenerator {
 
 	private void playMove(NextMoveSender nextMoveSender) throws IOException {
 		String[][] map = nextMoveSender.getCurrentMap();
+		
+		mAi.playMove(nextMoveSender);
 		
 		int randomMove = (new Random()).nextInt(9999) % myMoves.length;
 		nextMoveSender.setMoveAndSend(myMoves[randomMove]);
