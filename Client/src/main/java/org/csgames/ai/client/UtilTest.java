@@ -11,6 +11,7 @@ import org.junit.Test;
 public class UtilTest {
 
 	private String[][] map = {
+			        
 			/* 0 */ {"H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", "H"},
 			/* 1 */ {"H", "1"," "," "," ", "W", "W", "W", "W"," ", "W", "W"," ", "W", "W"," ", "W", "W", "W", "W"," "," "," ", "3", "H"}, 
 			/* 2 */ {"H"," ", "H"," ", "H", "W", "H"," ", "H"," ", "H"," ", "H"," ", "H"," ", "H"," ", "H", "W", "H"," ", "H"," ", "H"}, 
@@ -59,6 +60,22 @@ public class UtilTest {
 
 		assertTrue(bombList.size() == 1);
 		assertEquals("Self should be found at (31,1) from (31,5) with max=5", bombList.get(0), new Point2D(31, 1));
+	}
+	
+	@Test
+	public void testMyLocation(){
+		Point2D expected = new Point2D(31,1);
+		Point2D actual = util.getMyLocation();
+		
+		assertEquals("Self should be at (31,1)", expected, actual );
+	}
+	
+	@Test
+	public void testAt(){
+		String expected = Util.PLAYER_4;
+		String actual = util.at(31, 23);
+		
+		assertEquals("Player 4 should be at (31,23)", expected, actual);
 	}
 
 }
