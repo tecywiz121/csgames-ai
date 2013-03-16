@@ -41,10 +41,14 @@ public class Util {
 	}
 	
 	private void updatePowerDet(String[][] map) {
-		
+		Point2D me = getMyLocation();
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++){
-				
+				Point2D mapCell = new Point2D(i,j);
+				if( at(mapCell) == POW_UP_DET ){
+					mapCell.equals(me);
+					//mSelf
+				}
 			}
 		}
 	}
@@ -122,6 +126,12 @@ public class Util {
 	public String at(Point2D p) { return at(p.x, p.y); }
 	
 	public String at(int x, int y){
+		if(x < 0 ||
+				x >= mMap.length ||
+				y < 0 || 
+				y > mMap[0].length) {
+			return HARD_WALL;
+		}
 		return mMap[x][y];
 	}
 	
