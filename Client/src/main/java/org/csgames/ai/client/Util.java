@@ -4,21 +4,31 @@ public class Util {
 	
 	private String[][] map;
 	
-	private void updateMap(String[][] map){
+	public void updateMap(String[][] map){
 		this.map = map;
 	}
 	
-	private int[][] search(int x, int y, int max){
+	public int[][] search(int x, int y, int max){
 		
 		return new int[0][0];
 	}
 	
-	private double distance(int x1, int y1, int x2, int y2){
-		return Math.sqrt()
+	/**
+	 * 
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return
+	 */
+	public double distance(int x1, int y1, int x2, int y2){
+		int dX = x2 - x1;
+		int dY = y2 - y1;
+		return Math.sqrt(dX*dX + dY*dY);
 	}
 	
 	
-	private double checkSafety(int x, int y){
+	public double checkSafety(int x, int y){
 		return 0.0;
 	}
 }
