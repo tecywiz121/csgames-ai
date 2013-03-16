@@ -2,7 +2,10 @@ package org.csgames.ai.client;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.csgames.ai.client.Util.Artifact;
+import org.csgames.ai.client.Util.Point2D;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +29,14 @@ public class UtilTest {
 	
 	@Test
 	public void testSearch(){
-		util.search(0, 0, 5, Artifact.Bomb);
+		List<Point2D> bombList = util.search(0, 0, 5, Artifact.Bomb);
+		
+		assertTrue(bombList.size() == 1);
+		
+		List<Point2D> hardWList = util.search(0, 0, 5, Artifact.HardWall);
+		
+		assertTrue(hardWList.size() == 15);
+		
 	}
 
 }

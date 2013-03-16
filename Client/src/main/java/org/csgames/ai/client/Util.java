@@ -22,6 +22,7 @@ public class Util {
 		Myself("Y"),
 		BrickWall("W"),
 		HardWall("H"),
+		Empty(" "),
 		Bomb("B"),
 		Explosion("E"),
 		SuddenDeathAlert("A"),
@@ -51,6 +52,7 @@ public class Util {
 		
 		for(int col = lowBoundX; col < hiBoundX; col++){
 			for(int row = lowBoundY; row < hiBoundY; row++){
+				
 				if( Artifact.valueOf(map[col][row]).equals(type) ){
 					list.add(new Point2D(col, row));
 				}
@@ -69,5 +71,17 @@ public class Util {
 	
 	public double checkSafety(int x, int y){
 		return 0.0;
+	}
+	
+	public Point2D getMyLocation(){
+		for(int i = 0; i < map.length; i++)
+			for(int j = 0; j < map[0].length; j++)
+				if(map[i][j].equals("Y")) return new Point2D(i, j);
+		
+		return new Point2D(-1, -1);
+	}
+	
+	public Artifact at(int x, int y){
+		return Artifact.valueOf(map[x][y]);
 	}
 }
