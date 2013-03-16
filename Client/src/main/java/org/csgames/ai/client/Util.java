@@ -94,19 +94,18 @@ public class Util {
 	}
 
 	private void updatePlayer(String cell, int x, int y, long time){
-		// get player
+		// get player (string can contain B character too)
 		String player;
 		if(cell.contains(PLAYER_1)) player = PLAYER_1;
 		else if(cell.contains(PLAYER_2)) player = PLAYER_2;
 		else if(cell.contains(PLAYER_3)) player = PLAYER_3;
 		else if(cell.contains(PLAYER_4)) player = PLAYER_4;
 		else if(cell.contains(MYSELF)) player = MYSELF;
-		else return;
+		else return;  // not a player
 
 		Player p = mPlayers.get(player);
 
 		p.setLocation(x,y);
-
 
 		if( mOldMap[x][y].equals(POW_UP_BOMB) ){
 			// update bomb power up
@@ -175,7 +174,7 @@ public class Util {
 
 	public boolean passable(Point2D location){
 		String cell = at(location);
-		if( cell.contains(EMPTY) ||
+		if( cell.equals(EMPTY) ||  // NOT contains, cuz everyrthing contains empty string
 				cell.contains(POW_UP_BOMB) ||
 				cell.contains(POW_UP_DET) ||
 				cell.contains(POW_UP_RANGE) ||
@@ -196,6 +195,36 @@ public class Util {
 		return Math.sqrt(dX*dX + dY*dY);
 	}
 
+	/**
+	public double scoreToBrick(Point2D location){
+		if( !passable(location) ) return 0.0;
+		List<Point2D> brickLocList = search(location.x, location.y, 100, BRICK_WALL);
+		
+		
+	}
+	
+
+	public double distanceToClosest(String type){
+		// stupidly expensive since it will be called for each cell, most likely
+		for(int i = 0; i < mMap.length; i++){
+			for(int j = 0; j < mMap[0].length; j++){
+				if( at(i,j).equals(type) ){
+					
+				}
+			}
+		}
+		
+		double distanceToClosestBomb = Double.MAX_VALUE;
+		for(Point2D aBomb : bombList){
+			
+			double distanceToBomb = distance(aBomb, checkedPoint);
+			if( distanceToBomb < distanceToClosestBomb ){
+				distanceToClosestBomb = distanceToBomb;
+			}
+		}
+	}
+	*/
+	
 	public double checkSafety(Point2D p) { return checkSafety(p.x, p.y); }
 
 	public double checkSafety(int x, int y){
@@ -208,9 +237,22 @@ public class Util {
 		Point2D checkedPoint = new Point2D(x,y);
 
 		List<Point2D> bombList = search(x,y, Player.Values.DEFAULT_BOMB_RANGE, BOMB);
-		double distanceToClosestBomb = Double.MAX_VALUE;
+		
+		// don't care about bombs that are in diagonal
+		for(Point2D bomb : bombList.toArray(new Point2D[0])){
+			if(bomb.x != x && bomb.y != y ) bombList.remove(bomb);
+		}
+		
 
+		List<PlayerBomb> pBomb = new ArrayList<PlayerBomb>();
+		for(Point2D aBombLocation : bombList){
+			PlayerBomb b = getBombAtLocation(aBombLocation);
+			if(b != null) pBomb.add(b);
+		}
+		
+		double distanceToClosestBomb = Double.MAX_VALUE;
 		for(Point2D aBomb : bombList){
+			
 			double distanceToBomb = distance(aBomb, checkedPoint);
 			if( distanceToBomb < distanceToClosestBomb ){
 				distanceToClosestBomb = distanceToBomb;
