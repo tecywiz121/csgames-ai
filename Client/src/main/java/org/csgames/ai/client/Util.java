@@ -1,18 +1,20 @@
 package org.csgames.ai.client;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Util {
 	
-	public class Point2D{
+	public static class Point2D{
 		public final int x;
 		public final int y;
 		public Point2D(int x, int y){ this.x = x; this.y = y; }
+		public boolean equals(Point2D other){
+			return other.x == x && other.y == y;
+		}
 	}
 	
-	public enum Artifact{
+	public static enum Artifact{
 		Player1("1"),
 		Player2("2"),
 		Player3("3"),
@@ -41,6 +43,20 @@ public class Util {
 	
 	public List<Point2D> search(int x, int y, int max, Artifact type){
 		ArrayList<Point2D> list = new ArrayList<Point2D>();
+		
+		int lowBoundX = Math.max(0, x - max);
+		int lowBoundY = Math.max(0, y - max);
+		int hiBoundX = Math.min(map.length, x + max);
+		int hiBoundY = Math.min(map[0].length, y + max);
+		
+		for(int col = lowBoundX; col < hiBoundX; col++){
+			for(int row = lowBoundY; row < hiBoundY; row++){
+				if( Artifact.valueOf(map[col][row]).equals(type) ){
+					list.add(new Point2D(col, row));
+				}
+			}
+		}
+		
 		return list;
 	}
 	
