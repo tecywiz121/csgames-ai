@@ -8,6 +8,7 @@ import org.csgames.ai.client.network.NextMoveSender;
 
 import org.csgames.ai.client.AvailableMoves;
 import org.csgames.ai.client.Util.Artifact;
+import org.csgames.ai.client.Util.Point2D;
 
 public class AI {	
 	private class Action {
@@ -18,7 +19,21 @@ public class AI {
 		}
 		
 		public double getScore() {
-			return 0.0;
+			double score = 0.0;
+			Util.Point2D me = mUtil.getMyLocation();
+			
+			// Bomb based score
+			List<Point2D> bombs = mUtil.search(me.x, me.y, getBombRadius(), Artifact.Bomb);
+			
+			for (Point2D bomb : bombs) {
+				score += mUtil.distance(me.x, me.y, bomb.x, bomb.y);
+			}
+			
+			if (score > 0) {
+				score = 1.0/score;
+			}
+			
+			return score;
 		}
 	}
 
@@ -71,7 +86,7 @@ public class AI {
 		Util.Point2D left = new Util.Point2D(me.x-1, me.y);
 		Util.Point2D right = new Util.Point2D(me.x+1, me.y);
 		
-		List<Util.Point2D> bombs = mUtil.search(me, getBombRadius(), Artifact.Bomb);
+		List<Util.Point2D> bombs = mUtil.search(me.x, me.y, getBombRadius(), Artifact.Bomb);
 		
 		
 		
