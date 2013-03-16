@@ -67,13 +67,17 @@ public class Util {
 		return list;
 	}
 	
+	public double distance(Point2D first, Point2D second){
+		return distance(first.x, first.y, second.x, second.y);
+	}
+	
 	public double distance(int x1, int y1, int x2, int y2){
 		int dX = x2 - x1;
 		int dY = y2 - y1;
 		return Math.sqrt(dX*dX + dY*dY);
 	}
 	
-	public double checkSaftey(Point2D p) { return checkSafety(p.x, p.y); }
+	public double checkSafety(Point2D p) { return checkSafety(p.x, p.y); }
 	
 	public double checkSafety(int x, int y){
 		return 0.0;
