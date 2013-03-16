@@ -39,6 +39,7 @@ public class MoveGenerator {
 	private void playMove(NextMoveSender nextMoveSender) throws IOException {
 		String[][] map = nextMoveSender.getCurrentMap();
 		
+		mUtil.updateMap(map);
 		mAi.playMove(nextMoveSender);
 		
 		int randomMove = (new Random()).nextInt(9999) % myMoves.length;
