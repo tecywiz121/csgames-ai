@@ -61,82 +61,12 @@ public class AI {
 				brick_score = 1.0/min_distance;
 			}
 			
+			if ((getElapsedTime()- mLastBomb)/1000.0 < 1.1) {
+				return (bomb_score*0.99) + 0.00001;
+			}
+			
 			System.out.println("Bomb:" + Double.toString(bomb_score) + " Brick:" + Double.toString(brick_score));
 			return (bomb_score*0.99) + (brick_score*0.01);
-		}
-		
-		public double getScore1() {
-			double score = 0.0;
-			Util.Point2D me = mUtil.getMyLocation();
-			int x = me.x;
-			int y = me.y;
-			
-			// Update location
-			switch (mType) {
-			case Down:
-				y += 1;
-				break;
-			case Left:
-				x -= 1;
-				break;
-			case Right:
-				x += 1;
-				break;
-			case Up:
-				y -= 1;
-				break;
-			default:
-				break;
-			}
-			
-			me = new Util.Point2D(x, y);
-			
-			// Bomb based score
-			List<Point2D> bombs = mUtil.search(me.x, me.y, getBombRadius(), Util.BOMB);
-			double bomb_score = 0;
-			for (Point2D bomb : bombs) {
-				bomb_score += mUtil.distance(me.x, me.y, bomb.x, bomb.y);
-			}
-			
-			// Brick based score
-			List<Point2D> bricks = mUtil.search(me.x, me.y, BRICK_DISTANCE, Util.BRICK_WALL);
-			
-			double distance = Double.MAX_VALUE;
-			double brick_score = 0;
-			for (Point2D brick : bricks) {
-				double d = mUtil.distance(brick, me);
-				if (d < distance) {
-					distance = d;
-				}
-			}
-			if (distance < Double.MAX_VALUE) {
-				brick_score += distance;
-			}
-			
-			// Search for powerups
-			
-			// Break BLOCKS!
-			double break_score = 0.0;
-			if (mType == AvailableMoves.DropBomb) {
-				List<Point2D> blocks = mUtil.search(me.x, me.y, getBombRadius(), Util.BRICK_WALL);
-				int count = 0;
-				for (Point2D block : blocks) {
-					if (block.x == me.x || block.y == me.y) {
-						count ++;
-					}
-				}
-				
-				break_score -= count;
-			}
-			
-			bomb_score *= -0.25;
-			brick_score *= 0.000000001;
-			break_score *= 0.0000001;
-			
-			System.out.println("Bomb:" + Double.toString(bomb_score) + " Brick:" + Double.toString(brick_score) + " Break:" + Double.toString(break_score));
-			score = bomb_score + brick_score + break_score;
-			System.out.println(mType.toString() + " " + Double.toString(score) + " " + Double.toString(distance));
-			return score;
 		}
 	}
 
@@ -145,6 +75,7 @@ public class AI {
 	private Action mNextMove = null;
 	
 	private long mFirstTurn;
+	private long mLastBomb;
 	
 	public AI (Util util) {
 		mUtil = util;
@@ -192,9 +123,13 @@ public class AI {
 			mNextMove = new Action();
 			mNextMove.mType = avoidAction;
 		}
-		
+				
 		// Execute Action
 		nextMoveSender.setMoveAndSend(bestAction.getAvailableMove());
+		
+		if (bestAction.getAvailableMove() == AvailableMoves.DropBomb) {
+			mLastBomb = getElapsedTime();
+		}
 		
 		System.out.println("Doing:" + bestAction.mType.toString() + Double.toString(bestAction.getScore()));
 		System.out.println();
