@@ -51,7 +51,7 @@ public class UtilTest {
 	@Before
 	public void before(){
 		util = new Util();
-		util.updateMap(map);
+		util.updateMap(map, System.currentTimeMillis());
 	}
 
 	@Test

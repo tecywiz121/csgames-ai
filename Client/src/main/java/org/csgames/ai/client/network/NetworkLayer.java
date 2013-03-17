@@ -26,7 +26,7 @@ public class NetworkLayer {
 			}
 		}
 		String line = reader.readLine();
-		if(line.trim().equals("quit")) {
+		if(line == null || line.trim().equals("quit")) {
 			throw new GameEndedException();
 		}
 		String[][] map = generateMap(line);

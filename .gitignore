@@ -2,9 +2,12 @@ bin
 target
 .buildpath
 .settings
+
 .classpath
 
 __pycache__
 *.pyc
 *.pyo
 scores.txt
+
+pids
