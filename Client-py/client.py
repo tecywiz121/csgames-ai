@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 import socket
+import ai
 
 
 class BombermanClient:
@@ -65,7 +68,7 @@ class BombermanClient:
         return map
 
     def generate_move(self, map):
-        return self.available_moves['Right']
+    	return ai.generate_move(self, map)
 
 if __name__ == "__main__":
     s = BombermanClient()
