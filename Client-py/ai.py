@@ -28,6 +28,12 @@ class Tile(object):
     DEATH_ALERT = 'A'
     DEADLY = (EXPLOSION, DEATH_ALERT)
 
+    EXTRA_BOMB = 'b'
+    RANGE = 'r'
+    DETONATOR = 'd'
+    KICK = 'k'
+    POWER_UPS = (EXTRA_BOMB, RANGE, DETONATOR, KICK)
+
     def __init__(self, value):
         self.value = value
 
@@ -136,6 +142,18 @@ class Map(object):
                 if col.has(Tile.ME):
                     return (x, y)
 
+class Player(object):
+    range = 2
+    max_bombs = 1
+    detonator = False
+    kick = False
+
+    def __init__(self, s):
+        self.id = s
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(' + repr(self.id) + ')'
+
 class Bomb(object):
     owner = None
     age = 0
@@ -159,6 +177,7 @@ class AI(object):
     map = DummyMap()
     game_start = None
     bombs = {}
+    players = dict((x, Player(x)) for x in Tile.PLAYERS)
 
     def time_elapsed(self):
         """Returns the number of seconds since the game started"""
@@ -168,11 +187,14 @@ class AI(object):
         """Updates the internal representation of the game to match the server.
 
         >>> ai = AI()
-        >>> ai.update([['', 'B1'], ['', '']])
+        >>> ai.update([['b', 'B1'], ['', '']])
         >>> list(ai.bombs.keys())
         [(1, 0)]
         >>> ai.bombs[(1, 0)].owner
-        '1'
+        Player('1')
+        >>> ai.update([['1', 'B'], ['', '']])
+        >>> ai.players[Tile.PLAYER1].max_bombs
+        2
         """
 
         if not self.game_start:
@@ -199,9 +221,18 @@ class AI(object):
                 removed = old_set - current_set
 
                 if 'B' in added:
-                    self.bombs[(x, y)] = Bomb(current.player, self.time_elapsed())
+                    self.bombs[(x, y)] = Bomb(self.players[current.player], self.time_elapsed())
                 elif 'B' in removed:
                     del self.bombs[(x, y)]
+
+                if Tile.RANGE in removed:
+                    self.players[current.player].range += 1
+                elif Tile.EXTRA_BOMB in removed:
+                    self.players[current.player].max_bombs += 1
+                elif Tile.KICK in removed:
+                    self.players[current.player].kick = True
+                elif Tile.DETONATOR in removed:
+                    self.players[current.player].detonator = True
 
     def generate_move(self):
         return Action.NONE
