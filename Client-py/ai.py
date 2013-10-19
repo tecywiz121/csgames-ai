@@ -1,5 +1,8 @@
 import time
 from math import sqrt
+import sys
+
+EPSILON = sys.float_info.epsilon
 
 class Action(object):
     LEFT = 'Left'
@@ -90,7 +93,41 @@ class Map(object):
         >>> Map([['', 'B'], ['', '']]).at((1, 0))
         Tile('B')
         """
-        return self._tiles[p[1]][p[0]]
+        return self._tiles[p[1]%self.height][p[0]%self.width]
+
+    def has_LOS(self, p1, p2):
+        """Returns True if either point has a straight, unobstructed path to the other point.
+
+        >>> m = Map([['', '', ''], ['', '', ''], ['', 'W', '']])
+        >>> m.has_LOS((0, 0), (0, 1))
+        True
+        >>> m.has_LOS((0, 1), (0, 0))
+        True
+        >>> m.has_LOS((0, 0), (1, 1))
+        False
+        >>> m.has_LOS((0, 1), (2, 1))
+        True
+        >>> m.has_LOS((0, 2), (2, 2))
+        False
+        """
+        if p1[0] != p2[0] and p1[1] != p2[1]:
+            return False
+
+        d_x = p1[0] - p2[0]
+        d_y = p1[1] - p2[1]
+
+        d_x = int(d_x / abs(d_x)) if d_x else 0
+        d_y = int(d_y / abs(d_y)) if d_y else 0
+
+        c_x = p2[0]
+        c_y = p2[1]
+        while (c_x, c_y) != p1:
+            c_x += d_x
+            c_y += d_y
+
+            if self.at((c_x, c_y)).has(Tile.HARD_WALL + Tile.BRICK_WALL):
+                return False
+        return True
 
     def search(self, c_p, max_distance=None, tiles=None):
         """Get all non-empty tiles within max_distance that contain tiles.
@@ -173,6 +210,16 @@ class DummyMap(Map):
         return Tile('')
 
 class AI(object):
+    ACTIONS = {
+        Action.LEFT: (-1, 0),
+        Action.RIGHT: (1, 0),
+        Action.DOWN: (0, 1),
+        Action.UP: (0, -1),
+        Action.DROP_BOMB: (0, 0),
+        Action.DETONATE: (0, 0),
+        Action.NONE: (0, 0),
+    }
+
     previous_map = DummyMap()
     map = DummyMap()
     game_start = None
@@ -207,6 +254,8 @@ class AI(object):
         for bomb in self.bombs.values():
             bomb.age = self.time_elapsed() - bomb.created
 
+        print()
+        print()
         # Find the differences between the old map and the new map
         for y, current_row in enumerate(self.map.tiles):
             for x, current in enumerate(current_row):
@@ -220,10 +269,22 @@ class AI(object):
                 added = current_set - old_set
                 removed = old_set - current_set
 
+                if added or removed:
+                    print((x, y))
+                if added:
+                    print("Added: ", added)
+                if removed:
+                    print("Removed: ", removed)
+
                 if 'B' in added:
                     self.bombs[(x, y)] = Bomb(self.players[current.player], self.time_elapsed())
+                    print('Add B ' + repr((x, y)))
                 elif 'B' in removed:
-                    del self.bombs[(x, y)]
+                    if (x, y) in self.bombs:
+                        del self.bombs[(x, y)]
+                        print('Remove B  ' + repr((x, y)))
+                    else:
+                        print('Removed B* ' + repr((x, y)))
 
                 if Tile.RANGE in removed:
                     self.players[current.player].range += 1
@@ -235,7 +296,51 @@ class AI(object):
                     self.players[current.player].detonator = True
 
     def generate_move(self):
-        return Action.NONE
+        possible = self.possible_actions()
+
+        score = 0.0
+        best = (Action.NONE, (0, 0))
+
+        for p in possible:
+            c = self.calculate_score(*p)
+            if c > score:
+                score = c
+                best = p
+
+        return best[0]
+
+    def possible_actions(self):
+        possible = []
+        me = self.map.me()
+        for action, position in AI.ACTIONS.items():
+            position = (position[0]+me[0], position[1]+me[1])
+            if action == Action.DROP_BOMB or not self.map.at(position).has(Tile.IMPASSABLE):
+                possible.append((action, position))
+        return possible
+
+    def calculate_score(self, action, p):
+        x, y = p
+
+        # Score passability
+        passability = sum(1 for d_x, d_y in [(-1, 0), (1, 0), (0, -1), (0, 1)] if not self.map.at((x+d_x, y+d_y)).has(Tile.IMPASSABLE))
+        passability /= 4.0
+
+        # Score bombs
+        bombs = 0
+        if self.bombs:
+            for location, bomb in self.bombs.items():
+                if self.map.distance(location, p) > bomb.owner.range or not self.map.has_LOS(location, p):
+                    continue # Skip bombs that are too far away or don't have line of sight
+                if bomb.age > bombs:
+                    bombs = bomb.age
+            bombs /= max(x.age for x in self.bombs.values()) + EPSILON
+
+        # Place bomb score
+        drop = 1 if action == Action.DROP_BOMB else 0
+
+        return 0.85*bombs + 0.1*passability + 0.05*drop
+
+
 
 my_ai = AI()
 
